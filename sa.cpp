@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include "strfunc.h"
+#include "common.h"
 
 typedef pair<int, int> pii;
 
@@ -19,20 +20,11 @@ int upper_bound_str(int_vector<> &seq, int_vector<> &sa, int_vector<> &p) {
     while (low < high) {
         mid = (low + high) / 2;
 
-        cout << "mid: " << mid << endl;
-        cout << "comparing: '";
-        print_str_from(seq, sa[mid]);
-        cout << "' with '";
-        print_str_from(p, 0);
-        cout << "'\n";
-
         if (int_vector_strleq(seq, sa[mid], seq.size()-1, p, 0, p.size())) {
             low = mid + 1;
-            cout << "true\n";
         }
         else {
             high = mid;
-            cout << "false\n";
         }
     }
 
@@ -74,8 +66,8 @@ pii sa_search(int_vector<> &seq, int_vector<> &sa, int_vector<> &p) {
 }
 
 int sa_count(int_vector<> &seq, int_vector<> &sa, int_vector<> &p) {
-    pii p = sa_search(seq, sa, p);
-    return p.second - p.first + 1;
+    pii c = sa_search(seq, sa, p);
+    return c.second - c.first + 1;
 }
 
 // int_vector<> doc_locate(int_vector<> &seq, int_vector<> &sa, vector<int> &docs, int_vector<> &p) {
@@ -98,29 +90,18 @@ int main(int argc, char** argv) {
     string infile(argv[1]);
     
     int_vector<> seq;
-    int32_t n;
-    {
-        load_vector_from_file(seq, infile, 1);
-        n = seq.size();
-        
-        seq.resize(n+1);
-        n = seq.size();
-        seq[n-1] = 0; // Representa el final de texto. Suele representarse por el
-                    // símbolo $ 
-    }
 
+    string pf = "datasets/dblp/dblp5MB_";
+    vector<string> v({pf+"1.xml", pf+"2.xml", pf+"3.xml", pf+"4.xml"});
+
+    load_documents(v, false, pf, seq);
+    int32_t n = seq.size();
     cout << "Construyendo el Suffix array ..." << endl;
     
     int_vector<> sa(1, 0, bits::hi(n)+1);
     sa.resize(n);
     algorithm::calculate_sa((const unsigned char*)seq.data(), n, sa);
 
-    for (int32_t i=0;i<n;++i) {
-        print_str_from(seq, sa[i]);
-        cout << "\n";
-    }
-    cout << "\n";
-    
     cout << "Tamaño del SA " << size_in_mega_bytes(sa) << " MB." << endl;
 
     // int_vector<> ex{'a'};

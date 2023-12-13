@@ -1,5 +1,7 @@
 */*.zip
 */*.csv
-*/*.out
+*.out
 */*.exe
 /.vscode
+
+*.xml
