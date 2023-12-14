@@ -2,28 +2,46 @@
 #include <string>
 #include <iostream>
 #include <algorithm>
+#include <set>
 
 #include "strfunc.h"
 #include "common.h"
 
 typedef long long ll;
-typedef pair<ll, ll> pii;
+typedef pair<ll, ll> pll;
 
 
 using namespace sdsl;
 using namespace std;
 
-ll upper_bound_str(int_vector<> &seq, int_vector<> &sa, int_vector<> &p) {
-    ll n = sa.size();
+
+pll sa_search(const string &seq, int_vector<> &sa, const string &p) {
+    pll ans;
+
+    ll n = seq.size();
+
     ll mid;
-    ll low = 1;
+    ll low = 0;
     ll high = n;
 
     while (low < high) {
-        mid = (low + high) / 2;
+        mid = (low+high) / 2;
 
-        // if (int_vector_strleq(seq, sa[mid], seq.size()-1, p, 0, p.size())) {
-        if (strcmp_vector(seq, sa[mid], seq.size()-1, p, 0, p.size()) <= 0) {
+        // p > suff
+        if (strcmp_vector(p, 0, p.size(), seq, sa[mid], seq.size()) == 1)
+            low = mid + 1;
+        // p <= suff
+        else
+            high = mid;
+    }
+    ans.first = low;
+
+    high = n;
+
+    while (low < high) {
+        mid = (low+high) / 2;
+
+        if (isPrefix(p, 0, p.size(), seq, sa[mid], seq.size())) {
             low = mid + 1;
         }
         else {
@@ -31,90 +49,65 @@ ll upper_bound_str(int_vector<> &seq, int_vector<> &sa, int_vector<> &p) {
         }
     }
 
-    if (low < n && strcmp_vector(seq, sa[low], seq.size()-1, p, 0, p.size()) <= 0)
-        low++;
-    
-    return low;
-
-}
-
-ll lower_bound_str(int_vector<> &seq, int_vector<> &sa, int_vector<> &p) {
-    ll n = sa.size();
-    ll mid;
-    ll low = 1;
-    ll high = n;
-
-    while (low < high) {
-        mid = (low + high) / 2;
-
-        if (int_vector_strleq(p, 0, p.size(), seq, sa[mid], seq.size()-1) )
-            high = mid;
-
-        else
-            low = mid + 1;
-    }
-
-    if (low < n && int_vector_strl(p, 0, p.size(), seq, sa[low], seq.size()-1))
-        low++;
-    
-    return low;
-
-}
-
-pii sa_search(int_vector<> &seq, int_vector<> &sa, int_vector<> &p) {
-    pii ans;
-    ans.first = lower_bound_str(seq, sa, p);
-    ans.second = upper_bound_str(seq, sa, p);
+    ans.second = high;
     return ans;
 }
 
-ll sa_count(int_vector<> &seq, int_vector<> &sa, int_vector<> &p) {
-    pii c = sa_search(seq, sa, p);
-    return c.second - c.first + 1;
+ll sa_count(const string &seq, int_vector<> &sa, const string &p) {
+    pll c = sa_search(seq, sa, p);
+    return c.second - c.first;
 }
 
-vector<ll> doc_locate(int_vector<> &seq, int_vector<> &sa, vector<ll> &docspos, int_vector<> &p) {
-    pii bs = sa_search(seq, sa, p);
+set<ll> doc_locate(const string &seq, int_vector<> &sa, vector<ll> &docspos, const string &p) {
+    pll bs = sa_search(seq, sa, p);
     cout << bs.first << " " << bs.second << "\n";
-    vector<ll> ans;
-    vector<ll>::iterator result, it;
-    // ll i = lower_bound_str(seq, sa, p);
-    // while (i < n && )
+    vector<ll>::iterator it;
+    set<ll> ans;
+
+
     for (ll i=bs.first;i<=bs.second;i++) {
-        result = lower_bound(docspos.begin(), docspos.end(), sa[i]);
-        it = result;
-        // if (!ans.empty() && ans.back() == *result)
-        //     continue;
-        ans.push_back(result-docspos.begin());
-        while (i < seq.size() && *result == *it) {
-            i++;
-            it = lower_bound(docspos.begin(), docspos.end(), sa[i]);
-        }
-        i--;
+        it = lower_bound(docspos.begin(), docspos.end(), sa[i]);
+        ans.insert(it - docspos.begin());
     }
     return ans;
 }
 
-
+void printSuffixArray(const string &seq, int_vector<> &sa) {
+    ll n = sa.size();
+    for (ll i=0;i<n;++i) {
+        // printf("%2d ", i);
+        // if (seq[sa[i]] < 'a')
+        //     break;
+        cout << "'";
+        for (ll j=sa[i];j<seq.size();++j) {
+            cout << (char)seq[j];
+            if (j-sa[i] > 10)
+                break;
+        }
+        cout << "'\n";
+    }
+}
 
 int main(int argc, char** argv) {
-    if (argc !=  2) {
-        cout << "Uso: " << argv[0] << " <archivo entrada>" << endl;
-        return 1;
-    }
-
     // Leemos el archivo de entrada y guardamos el contenido en 'seq'
-    string infile(argv[1]);
-    
-    int_vector<> seq;
+
+
+    // Testeo de funcionalidad para suffix array
+    // load_vector_from_file(seq, "ejemplo.txt", 1);
+    // seq.resize(seq.size()+1);
+    // seq[seq.size()-1] = '$';
+
 
     string pf = "datasets/dblp/dblp5MB_";
-    // vector<string> doc_names({pf+"1.xml", pf+"2.xml", pf+"3.xml", pf+"4.xml"});
-    vector<string> doc_names({pf+"1.xml"});
+    vector<string> doc_names({pf+"1.xml", pf+"2.xml", pf+"3.xml", pf+"4.xml"});
+    // vector<string> doc_names({pf+"1.xml"});
 
     vector<ll> docspos;
-    string empty_string("");
-    load_documents(doc_names, false, empty_string, seq, docspos);
+    string seq;
+    int_vector<> empty_vec;
+    load_documents(doc_names, true, seq, empty_vec, docspos);
+
+
     ll n = seq.size();
     cout << "Construyendo el Suffix array ..." << endl;
     
@@ -124,18 +117,22 @@ int main(int argc, char** argv) {
 
     cout << "Tamaño del SA " << size_in_mega_bytes(sa) << " MB." << endl;
 
-    int_vector<> p;
-    load_vector_from_file(p, "patron.txt", 1);
+    string p;
+    stringstream buffer;
+    ifstream file("patron.txt");
+    buffer << file.rdbuf();
+    p = buffer.str();
+
+    // printSuffixArray(seq, sa);
+    cout << "ocurrencias: " << sa_count(seq, sa, p) << "\n";
 
 
-    // cout << lower_bound_str(seq, sa, p) << "\n";
-    // cout << upper_bound_str(seq, sa, p) << "\n";
-    // cout << sa_count(seq, sa, p) << "\n";
 
-    vector<ll> docs_ans = doc_locate(seq, sa, docspos, p);
+
+    set<ll> docs_ans = doc_locate(seq, sa, docspos, p);
     cout << "docs_size: " << docs_ans.size() << "\n"; 
-    for (ll i=0;i<docs_ans.size();i++) {
-        cout << doc_names[docs_ans[i]] << "\n";
+    for (set<ll>::iterator it=docs_ans.begin();it!=docs_ans.end();it++) {
+        cout << doc_names[*it] << "\n";
     }
     
     return 0;
