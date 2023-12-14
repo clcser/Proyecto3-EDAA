@@ -1,55 +1,70 @@
-// Construcción del FM index de un texto
-//
-// Prerrequisitos: Tener la biblioteca SDSL instalada
-//
-// Compilación: g++ -O3 -o fmi FM-index.cpp -lsdsl -ldivsufsort -ldivsufsort64
-
+#include <algorithm>
+#include <iostream>
 #include <sdsl/suffix_arrays.hpp>
 #include <string>
-#include <iostream>
-#include <algorithm>
 
 using namespace sdsl;
 using namespace std;
 
-int main(int argc, char** argv) {
-  if (argc !=  2) {
-    cout << "Uso: " << argv[0] << " <archivo entrada>" << endl;
-    return 1;
-  }
+// Por mientras ingresar los nombres de los archivos por argv, luego voy a poner el input bkn :)
 
-  // Una versión compacta del suffix array, implementada en la biblioteca
-  // SDSL. En este caso, utiliza un wavelet tree tipo wt_int<> como
-  // building-block
-  // Otros posibles building blocks son: wt_huff<>, wt_int<rrr_vector<> >, entre
-  // otras combinaciones
-  cout << "Construyendo el FM-index ..." << endl;
-  csa_wt<wt_int<>> fm_index;
-  construct(fm_index, argv[1], 1);
-  
-    
-  cout << "Tamaño del FM-index " << size_in_mega_bytes(fm_index) << " MB." << endl;
+class FM_INDEX_SEARCH {
+   private:
+    csa_wt<wt_huff<rrr_vector<127>>> fm_index;
 
-    string patron;
-    cout << "Ingrese un patrón a buscar: ";
-    cin >> patron;
+   public:
+    FM_INDEX_SEARCH() {}
 
-    // Tamaño del patrón
-    size_t m  = patron.size();
-
-    // Buscando las ocurrencias del patrón
-    size_t occs = sdsl::count(fm_index, patron.begin(), patron.end());
-
-    cout << "# de ocurrencias: " << occs << endl;
-    if (occs > 0) {
-      cout << "Las ocurrencias comienzan en las siguientes posiciones: " << endl;
-      //      auto locations = locate(fm_index, query.begin(), query.begin()+m)
-      auto posiciones = sdsl::locate(fm_index, patron.begin(), patron.end());
-      sort(posiciones.begin(), posiciones.end());
-      
-      for (size_t i = 0; i < occs; ++i) {
-	cout << posiciones[i] << endl;
-      }
+    void constructIndex(string seq) { 
+        construct_im(fm_index, seq, 1); 
     }
+
+    auto occurrences_position(const string& query) {
+        auto pos = locate(fm_index, query.begin(), query.end());
+        sort(pos.begin(), pos.end());
+        return pos;
+    }
+};
+
+int main(int argc, char** argv) {
+    if (argc < 2) {
+        cout << "Uso: " << argv[0] << " [archivos]" << endl;
+        return 1;
+    }
+
+    // leer archivos y concatenarlos
+    vector<string> file_names;
+    string seq;
+    for (int i = 1; i < argc; i++) {
+        file_names.push_back(argv[i]);
+        int_vector<> tmp;
+        load_vector_from_file(tmp, argv[i], 1);
+        string str(tmp.begin(), tmp.end());
+        seq += str + (char)3;
+    }
+
+    // construir FM-index
+    FM_INDEX_SEARCH fm_index;
+    fm_index.constructIndex(seq);
+
+    // encontrar posiciones del patron
+    string pattern = "Incorrect IRQ";
+    auto pattern_positions = fm_index.occurrences_position(pattern);
+
+    // encontrar posiciones de los delimitadores de archivos
+    string doc_delim = "\3";
+    auto doc_positions = fm_index.occurrences_position(doc_delim);
+   
+    // calcular nombres de archivos en que se encuentra patron
+    set<string> files;
+    int p_size = pattern_positions.size();
+    for (int i = 0; i < p_size; i++) {
+        int pos = lower_bound(doc_positions.begin(), doc_positions.end(), pattern_positions[i]) - doc_positions.begin();
+        files.insert(file_names[pos]);
+    }
+
+    cout << "The pattern: <" << pattern << "> matches in files: " << endl;
+    for (auto f : files) cout << f << endl;
+
     return 0;
 }
