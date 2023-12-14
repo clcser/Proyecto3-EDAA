@@ -16,6 +16,7 @@ bool load_documents(const std::vector<std::string> v, std::string &sdocs, vector
         buffer << t.rdbuf();
         sdocs += buffer.str();
         sdocs += (char)3;
+        docspos.push_back(sdocs.size()-1);
     }
 
     return 1;

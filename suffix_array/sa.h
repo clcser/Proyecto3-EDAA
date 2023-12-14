@@ -61,7 +61,7 @@ ll sa_count(const string &seq, int_vector<> &sa, const string &p) {
 
 set<ll> doc_locate(const string &seq, int_vector<> &sa, vector<ll> &docspos, const string &p) {
     pll bs = sa_search(seq, sa, p);
-    cout << bs.first << " " << bs.second << "\n";
+    //cout << bs.first << " " << bs.second << "\n";
     vector<ll>::iterator it;
     set<ll> ans;
 

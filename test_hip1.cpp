@@ -26,6 +26,7 @@ int main(int argc, char** argv) {
     text_size.open("experimental_data/text_size_ms.csv");
     text_size << "file_num, fm_time, sa_time\n";
 
+    string seq = "";
     for(int i = 1; i < argc; ++i) {
         fm_time = sa_time = 0;
         // leer archivos y concatenarlos
@@ -36,12 +37,18 @@ int main(int argc, char** argv) {
         //seq += str + (char)3;
         vector<ll> docspos;
         string seq;
-        load_documents(doc_names, seq, docspos);
+        load_documents(file_names, seq, docspos);
+
+        for(int i = 0; i < docspos.size(); i++) {
+            cout << docspos[i] << " ";
+        }
+        cout << endl;
         
         // armar sa y fm-index
         FM_INDEX_SEARCH fm_index;
         fm_index.constructIndex(seq);
 
+        long long n = seq.size();
         int_vector<> sa(1, 0, bits::hi(n)+1);
         sa.resize(n);
         algorithm::calculate_sa((const unsigned char*)seq.data(), n, sa);
@@ -61,15 +68,15 @@ int main(int argc, char** argv) {
 
             // BUSCAR EN SUFFIX ARRAY
             begin_time = std::chrono::high_resolution_clock::now();
-            set<ll> docs_ans = doc_locate(seq, sa, docspos, p);
-            cout << "docs_size: " << docs_ans.size() << "\n"; 
-            for (set<ll>::iterator it=docs_ans.begin();it!=docs_ans.end();it++) {
-            //cout << doc_names[*it] << "\n";
+            set<ll> docs_ans = doc_locate(seq, sa, docspos, pattern);
             end_time = std::chrono::high_resolution_clock::now();
+            //cout << "docs_size: " << docs_ans.size() << "\n";
+            //for (set<ll>::iterator it=docs_ans.begin();it!=docs_ans.end();it++) {
+            //    cout << file_names[*it] << "\n";
+            //}
             
             elapsed_time = end_time - begin_time;
             sa_time += elapsed_time.count();
-    }
         }
         fm_time /= RUNS;
         sa_time /= RUNS;

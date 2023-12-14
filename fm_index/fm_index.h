@@ -42,8 +42,8 @@ class FM_INDEX_SEARCH {
             files.insert(file_names[pos]);
         }
 
-        //cout << "The pattern: <" << query << "> matches in files: " << endl;
-        //for (auto f : files) cout << f << endl;
+        cout << "The pattern: <" << query << "> matches in files: " << endl;
+        for (auto f : files) cout << f << endl;
     }
 };
 
