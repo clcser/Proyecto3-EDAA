@@ -7,7 +7,7 @@
 #include <vector>
 
 
-bool load_documents(const std::vector<std::string> v, bool as_str, std::string &sdocs, sdsl::int_vector<> &vdocs) {
+bool load_documents(const std::vector<std::string> v, bool as_str, std::string &sdocs, sdsl::int_vector<> &vdocs, vector<long long> &docspos) {
     int n = v.size();
     if (as_str) { // return docs in string docs
 
@@ -34,6 +34,7 @@ bool load_documents(const std::vector<std::string> v, bool as_str, std::string &
                 vdocs[j] = t[j-vdocs_size];
             }
             vdocs_size += m + 1;
+            docspos.push_back(vdocs_size-1);
         }
     }
     return 1;
