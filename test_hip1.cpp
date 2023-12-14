@@ -12,10 +12,6 @@ using namespace sdsl;
 using namespace std;
 
 int main(int argc, char** argv) {
-    if (argc < 2) {
-        cout << "Uso: " << argv[0] << " [archivos]" << endl;
-        return 1;
-    }
 
     double fm_time, sa_time;
     auto begin_time = std::chrono::high_resolution_clock::now();
@@ -26,11 +22,19 @@ int main(int argc, char** argv) {
     text_size.open("experimental_data/text_size_ms.csv");
     text_size << "file_num, fm_time, sa_time\n";
 
+    vector<string> file_names;
+    string pfx = "datasets/dblp/dblp5MB_";
+    string sfx = ".xml";
+    // for (ll i=1;i<=10;i++) 
+    //     file_names.push_back(pfx+to_string(i)+sfx);
+    // }
+
+
     string seq = "";
-    for(int i = 1; i < argc; ++i) {
+    for(int i = 1; i <= 10; ++i) {
         fm_time = sa_time = 0;
         // leer archivos y concatenarlos
-        file_names.push_back(argv[i]);
+        file_names.push_back(pfx+to_string(i)+sfx);
         //int_vector<> tmp;
         //load_vector_from_file(tmp, argv[i], 1);
         //string str(tmp.begin(), tmp.end());
@@ -39,6 +43,7 @@ int main(int argc, char** argv) {
         string seq;
         load_documents(file_names, seq, docspos);
 
+        cout << "DOCSPOS:\n";
         for(int i = 0; i < docspos.size(); i++) {
             cout << docspos[i] << " ";
         }
