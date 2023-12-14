@@ -26,7 +26,6 @@ int main(int argc, char** argv) {
     text_size.open("experimental_data/text_size_ms.csv");
     text_size << "file_num, fm_time, sa_time\n";
 
-    string seq = "";
     for(int i = 1; i < argc; ++i) {
         fm_time = sa_time = 0;
         // leer archivos y concatenarlos
@@ -37,8 +36,7 @@ int main(int argc, char** argv) {
         //seq += str + (char)3;
         vector<ll> docspos;
         string seq;
-        int_vector<> empty_vec;
-        load_documents(doc_names, true, seq, empty_vec, docspos);
+        load_documents(doc_names, seq, docspos);
         
         // armar sa y fm-index
         FM_INDEX_SEARCH fm_index;
@@ -68,6 +66,7 @@ int main(int argc, char** argv) {
             for (set<ll>::iterator it=docs_ans.begin();it!=docs_ans.end();it++) {
             //cout << doc_names[*it] << "\n";
             end_time = std::chrono::high_resolution_clock::now();
+            
             elapsed_time = end_time - begin_time;
             sa_time += elapsed_time.count();
     }
