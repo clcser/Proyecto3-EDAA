@@ -18,29 +18,43 @@ class FM_INDEX_SEARCH {
    public:
     FM_INDEX_SEARCH() {}
 
-    void constructIndex(string seq) { construct_im(fm_index, seq, 1); }
+    void constructIndex(string seq) {
+        cout << seq.size() << "\n";
+        cout << "FLAG13\n";
+        construct_im(fm_index, seq, 1);
+        cout << "FLAG14\n";
+
+    }
 
     auto occurrences_position(const string& query) {
+        cerr << "FLAG9\n";
         auto pos = locate(fm_index, query.begin(), query.end());
+        cerr << "FLAG10\n";
         sort(pos.begin(), pos.end());
+        cerr << "FLAG11\n";
         return pos;
     }
 
     void file_locate(const string& query) {
         // encontrar posiciones del patron
+        cerr << "FLAG12\n";
         auto pattern_positions = occurrences_position(query);
 
+        cerr << "FLAG5\n";
         // encontrar posiciones de los delimitadores de archivos
         string doc_delim = "\3";
         auto doc_positions = occurrences_position(doc_delim);
+        cerr << "FLAG6\n";
 
         // calcular nombres de archivos en que se encuentra patron
         set<string> files;
         int p_size = pattern_positions.size();
+        cerr << "FLAG7\n";
         for (int i = 0; i < p_size; i++) {
             int pos = lower_bound(doc_positions.begin(), doc_positions.end(), pattern_positions[i]) - doc_positions.begin();
             files.insert(file_names[pos]);
         }
+        cerr << "FLAG8\n";
 
         cout << "The pattern: <" << query << "> matches in files: " << endl;
         for (auto f : files) cout << f << endl;

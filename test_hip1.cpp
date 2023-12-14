@@ -30,7 +30,6 @@ int main(int argc, char** argv) {
     // }
 
 
-    string seq = "";
     for(int i = 1; i <= 10; ++i) {
         fm_time = sa_time = 0;
         // leer archivos y concatenarlos
@@ -42,6 +41,7 @@ int main(int argc, char** argv) {
         vector<ll> docspos;
         string seq;
         load_documents(file_names, seq, docspos);
+        cout << seq.size() << "\n";
 
         cout << "DOCSPOS:\n";
         for(int i = 0; i < docspos.size(); i++) {
@@ -50,8 +50,9 @@ int main(int argc, char** argv) {
         cout << endl;
         
         // armar sa y fm-index
-        FM_INDEX_SEARCH fm_index;
-        fm_index.constructIndex(seq);
+        FM_INDEX_SEARCH *fm_index = new FM_INDEX_SEARCH();
+        cerr << "?????\n";
+        fm_index->constructIndex(seq);
 
         long long n = seq.size();
         int_vector<> sa(1, 0, bits::hi(n)+1);
@@ -60,25 +61,30 @@ int main(int argc, char** argv) {
         cout << "Tamaño del SA " << size_in_mega_bytes(sa) << " MB." << endl;
 
         // hacer busqueda sobre esos archivos
-        string pattern = "Incorrect IRQ";
+        string pattern = "university";
         
         for(int j = 0; j < RUNS; ++j) {
             // BUSCAR EN FM INDEX
+            cerr << "FLAG1\n";
             begin_time = std::chrono::high_resolution_clock::now();
-            fm_index.file_locate(pattern);
+            cerr << "FLAG2\n";
+            fm_index->file_locate(pattern);
+            cerr << "FLAG4\n";
             end_time = std::chrono::high_resolution_clock::now();
 
             elapsed_time = end_time - begin_time;
             fm_time += elapsed_time.count();
 
+            cerr << "FLAG3\n";
             // BUSCAR EN SUFFIX ARRAY
             begin_time = std::chrono::high_resolution_clock::now();
             set<ll> docs_ans = doc_locate(seq, sa, docspos, pattern);
             end_time = std::chrono::high_resolution_clock::now();
-            //cout << "docs_size: " << docs_ans.size() << "\n";
-            //for (set<ll>::iterator it=docs_ans.begin();it!=docs_ans.end();it++) {
-            //    cout << file_names[*it] << "\n";
-            //}
+            cout << "SUFFIX ARRAY RESPONSE: " << docs_ans.size() << "\n";
+            for (set<ll>::iterator it=docs_ans.begin();it!=docs_ans.end();it++) {
+               cout << file_names[*it] << "; ";
+            }
+            cout << "\n";
             
             elapsed_time = end_time - begin_time;
             sa_time += elapsed_time.count();
