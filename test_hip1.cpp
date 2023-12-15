@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
     text_size.open("experimental_data/text_size_ms.csv");
     text_size << "file_num, fm_time, sa_time\n";
 
-    vector<string> file_names;
+    //vector<string> file_names;
     string pfx = "datasets/dblp/dblp5MB_";
     string sfx = ".xml";
     // for (ll i=1;i<=10;i++) 
