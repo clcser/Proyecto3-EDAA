@@ -51,7 +51,6 @@ int main(int argc, char** argv) {
         
         // armar sa y fm-index
         FM_INDEX_SEARCH *fm_index = new FM_INDEX_SEARCH();
-        cerr << "?????\n";
         fm_index->constructIndex(seq);
 
         long long n = seq.size();
@@ -65,17 +64,13 @@ int main(int argc, char** argv) {
         
         for(int j = 0; j < RUNS; ++j) {
             // BUSCAR EN FM INDEX
-            cerr << "FLAG1\n";
             begin_time = std::chrono::high_resolution_clock::now();
-            cerr << "FLAG2\n";
             fm_index->file_locate(pattern);
-            cerr << "FLAG4\n";
             end_time = std::chrono::high_resolution_clock::now();
 
             elapsed_time = end_time - begin_time;
             fm_time += elapsed_time.count();
 
-            cerr << "FLAG3\n";
             // BUSCAR EN SUFFIX ARRAY
             begin_time = std::chrono::high_resolution_clock::now();
             set<ll> docs_ans = doc_locate(seq, sa, docspos, pattern);
