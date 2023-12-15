@@ -1,3 +1,6 @@
+#ifndef SA_H
+#define SA_H
+
 #include <sdsl/suffix_arrays.hpp>
 #include <string>
 #include <iostream>
@@ -10,10 +13,8 @@
 typedef long long ll;
 typedef pair<ll, ll> pll;
 
-
 using namespace sdsl;
 using namespace std;
-
 
 pll sa_search(const string &seq, int_vector<> &sa, const string &p) {
     pll ans;
@@ -60,7 +61,7 @@ ll sa_count(const string &seq, int_vector<> &sa, const string &p) {
 
 set<ll> doc_locate(const string &seq, int_vector<> &sa, vector<ll> &docspos, const string &p) {
     pll bs = sa_search(seq, sa, p);
-    cout << bs.first << " " << bs.second << "\n";
+    //cout << bs.first << " " << bs.second << "\n";
     vector<ll>::iterator it;
     set<ll> ans;
 
@@ -88,6 +89,9 @@ void printSuffixArray(const string &seq, int_vector<> &sa) {
     }
 }
 
+#endif
+
+/*
 int main(int argc, char** argv) {
     // Leemos el archivo de entrada y guardamos el contenido en 'seq'
 
@@ -137,3 +141,4 @@ int main(int argc, char** argv) {
     
     return 0;
 }
+*/
